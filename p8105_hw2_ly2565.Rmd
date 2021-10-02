@@ -5,6 +5,52 @@ date: "10/02/2021"
 output: github_document
 ---
 
+```{r}
+library(tidyverse)
+library(readxl)
+```
+
+# Problem 1
+
+## Read and clean the Mr. Trash Wheel dataset.
+
+```{r}
+trash_wheel_df = read_excel("data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N408") %>%  
+  janitor::clean_names() %>% 
+  drop_na(dumpster) %>% 
+  mutate(sports_balls = round(sports_balls, digits = 0))
+
+trash_wheel_df
+```
+
+## Data manipulation on precipitation data for 2018 and 2019.
+
+```{r}
+precip_2018_df = 
+  read_excel("data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>% 
+  janitor::clean_names() %>% 
+  mutate(year = 2018) %>% 
+  relocate(year)
+
+precip_2019_df = 
+  read_excel("data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2019 Precipitation", range = "A2:B8") %>% 
+  janitor::clean_names() %>% 
+  mutate(year = 2019) %>% 
+  relocate(year)
+```
+
+## Combine precipaitation datasets.
+
+```{r}
+comb_precip_df = 
+  bind_rows(precip_2018_df, precip_2019_df) %>% 
+  mutate(month = month.name[month])
+```
+
+* The 2018 precipitation dataset has `r nrow(precip_2018_df)` row and `r ncol(precip_2018_df)` columns with variable names: `r names(precip_2018_df)`. It has precipitation data for all 12 months of 2018. The total precipitation in 2018 is `r sum(pull(precip_2018_df, total))` inches. 
+* The 2019 precipitation dataset has `r nrow(precip_2019_df)` row and `r ncol(precip_2019_df)` columns with variable names: `r names(precip_2019_df)`. It has precipitation data for only 6 months of 2019 (Jan-Jun). The total precipitation in 2019 is `r sum(pull(precip_2019_df, total))` inches.
+* The median number of sports balls in a dumpster in 2019 is `r median(pull(trash_wheel_df, sports_balls))`.
+
 
 
 
