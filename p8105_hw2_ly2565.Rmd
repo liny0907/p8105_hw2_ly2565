@@ -51,6 +51,49 @@ comb_precip_df =
 * The 2019 precipitation dataset has `r nrow(precip_2019_df)` row and `r ncol(precip_2019_df)` columns with variable names: `r names(precip_2019_df)`. It has precipitation data for only 6 months of 2019 (Jan-Jun). The total precipitation in 2019 is `r sum(pull(precip_2019_df, total))` inches.
 * The median number of sports balls in a dumpster in 2019 is `r median(pull(trash_wheel_df, sports_balls))`.
 
+# Problem 2
+
+## Clean pols_month dataset.
+
+```{r}
+pols_month_df = 
+  read_csv(file = "data/pols-month.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(mon, into = c("year", "month", "day")) %>% 
+  mutate(
+    month = month.name[as.numeric(month)],
+    president = prez_gop + prez_dem) %>%
+  select(-prez_gop, -prez_dem, -day)
+pols_month_df  
+```
+
+## Clean snp dataset.
+
+```{r}
+snp_df = 
+  read_csv(file = "data/snp.csv") %>% 
+  mutate(date, date = as.Date(date, format = "%d/%m/%y")) %>% 
+  separate(date, into = c("year", "month", "day")) %>% 
+  mutate(month = month.name[as.numeric(month)]) %>% 
+  select(-day) %>% 
+  relocate(year)
+snp_df
+```
+
+## Clean unemployment dataset.
+
+```{r}
+unemploy_df =
+  read_csv(file = "data/unemployment.csv") %>% 
+  pivot_longer(
+    Jan:Dec,
+    names_to = "month",
+    values_to = "unemploy_pct") %>% 
+  janitor::clean_names()
+unemploy_df
+``` 
+
+## Merge snp into pols, and then merge unemployment.
 
 
 
