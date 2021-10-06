@@ -42,9 +42,10 @@ prcp_2019_df =
 ## Combine precipaitation datasets.
 
 ```{r}
-comb_precip_df = 
+comb_prcp_df = 
   bind_rows(prcp_2018_df, prcp_2019_df) %>% 
   mutate(month = month.name[month])
+comb_prcp_df
 ```
 
 * The 2018 precipitation dataset has `r nrow(prcp_2018_df)` row and `r ncol(prcp_2018_df)` columns with variable names: `r names(prcp_2018_df)`. It has precipitation data for all 12 months of 2018. The total precipitation in 2018 is `r sum(pull(prcp_2018_df, total))` inches. 
@@ -118,7 +119,7 @@ merging_df
 
 # Problem 3
 
-## Load and clean the data.
+## Load and tidy the popular baby name dataset.
 
 ```{r}
 pop_baby_name_df = 
@@ -127,10 +128,49 @@ pop_baby_name_df =
   mutate(
     gender = str_to_lower(gender),
     ethnicity = str_to_title(ethnicity),
-    childs_first_name = str_to_title(childs_first_name)) %>% 
+    childs_first_name = str_to_title(childs_first_name),
+    ethnicity = recode(ethnicity,
+                       "Black Non Hisp" = "Black Non Hispanic",
+                       "Asian And Paci" = "Asian And Pacific Islander",
+                       "White Non Hisp" = "White Non Hispanic")
+  ) %>% 
   distinct()
 pop_baby_name_df
 ```
 
+## Create a well-structured, reader-friendly table showing the rank in popularity of the name “Olivia”.
 
+```{r}
+olivia_rank_df =
+  pop_baby_name_df %>% 
+  filter(childs_first_name == "Olivia") %>% 
+  select(year_of_birth, ethnicity, rank) %>% 
+  pivot_wider(
+    names_from = "year_of_birth",
+    values_from = "rank") %>% 
+  knitr::kable()
+olivia_rank_df
+```
+
+## Create a similar table showing the most popular name among male children.
+
+```{r}
+most_pop_male_name_df =
+  pop_baby_name_df %>% 
+  filter(rank == 1, gender == "male") %>% 
+  select(year_of_birth, ethnicity, childs_first_name) %>% 
+  pivot_wider(
+    names_from = "year_of_birth",
+    values_from = "childs_first_name") %>% 
+  knitr::kable()
+most_pop_male_name_df  
+```
+
+## scatter plot
+```{r}
+pop_baby_name_df %>%
+  filter(year_of_birth == 2016, gender == "male", ethnicity == "White Non Hispanic") %>% 
+  ggplot(aes(x = rank, y = count)) +
+  geom_point()
+```
 
