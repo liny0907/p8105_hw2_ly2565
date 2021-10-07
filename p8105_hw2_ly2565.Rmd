@@ -45,7 +45,6 @@ comb_prcp_df =
   bind_rows(prcp_2018_df, prcp_2019_df) %>% 
   mutate(month = month.name[month])
 comb_prcp_df
-max(pull(comb_prcp_df, total))
 ```
 
 * The 2018 precipitation dataset has `r nrow(prcp_2018_df)` rows and `r ncol(prcp_2018_df)` columns with variable names: `r names(prcp_2018_df)`. It has precipitation data for all 12 months of 2018. The total precipitation in 2018 is `r sum(pull(prcp_2018_df, total))` inches. 
@@ -81,7 +80,6 @@ snp_df =
     month = factor(month.name[month], levels = month.name)) %>% 
   select(-day) %>% 
   relocate(year, month) %>% 
-  arrange(year, month) %>% 
   mutate(
     year = as.character(year),
     month = as.character(month)
@@ -169,22 +167,12 @@ babyname_df %>%
 babyname_df %>%
   filter(year_of_birth == 2016, gender == "male", ethnicity == "White Non Hispanic") %>% 
   ggplot(aes(x = rank, y = count)) +
-  geom_point()
+  geom_point() 
 ```
 
 
 
-```{r}
-pols_month_df = 
-  read_csv(file = "data/pols-month.csv") %>% 
-  janitor::clean_names() %>% 
-  separate(mon, into = c("year", "month", "day")) %>% 
-  mutate(
-    month = month.name[as.numeric(month)],
-    president = ifelse(prez_dem == 1, "dem", "gop")) %>%
-  select(-prez_gop, -prez_dem, -day)
-pols_month_df  
-```
+
 
 
 
