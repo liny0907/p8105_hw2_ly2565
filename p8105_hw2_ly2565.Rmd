@@ -5,7 +5,7 @@ date: "10/02/2021"
 output: github_document
 ---
 
-```{r}
+```{r, include = FALSE}
 library(tidyverse)
 library(readxl)
 ```
@@ -15,10 +15,10 @@ library(readxl)
 ## Read and clean the Mr. Trash Wheel dataset.
 
 ```{r}
-trash_wheel_df = read_excel("data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N408") %>%  
+trash_wheel_df = read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "Mr. Trash Wheel", range = "A2:N535") %>%  
   janitor::clean_names() %>% 
   drop_na(dumpster) %>% 
-  mutate(sports_balls = round(sports_balls, digits = 0))
+  mutate(sports_balls = round(sports_balls))
 trash_wheel_df
 ```
 
@@ -26,13 +26,13 @@ trash_wheel_df
 
 ```{r}
 prcp_2018_df = 
-  read_excel("data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>% 
+  read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "2018 Precipitation", range = "A2:B14") %>% 
   janitor::clean_names() %>% 
   mutate(year = 2018) %>% 
   relocate(year)
 
 prcp_2019_df = 
-  read_excel("data/Trash-Wheel-Collection-Totals-8-6-19.xlsx", sheet = "2019 Precipitation", range = "A2:B8") %>% 
+  read_excel("data/Trash-Wheel-Collection-Totals-7-2020-2.xlsx", sheet = "2019 Precipitation", range = "A2:B14") %>% 
   janitor::clean_names() %>% 
   mutate(year = 2019) %>% 
   relocate(year)
@@ -47,16 +47,15 @@ comb_prcp_df =
 comb_prcp_df
 ```
 
-* The 2018 precipitation dataset has `r nrow(prcp_2018_df)` rows and `r ncol(prcp_2018_df)` columns with variable names: `r names(prcp_2018_df)`. It has precipitation data for all 12 months of 2018. The total precipitation in 2018 is `r sum(pull(prcp_2018_df, total))` inches. 
-* The 2019 precipitation dataset has `r nrow(prcp_2019_df)` row and `r ncol(prcp_2019_df)` columns with variable names: `r names(prcp_2019_df)`. It has precipitation data for only 6 months of 2019 (Jan-Jun). The total precipitation in 2019 is `r sum(pull(prcp_2019_df, total))` inches.
-* The combined precipitation dataset has `r nrow(comb_prcp_df)` rows and `r ncol(comb_prcp_df)` columns with varibale names: `r names(comb_prcp_df)`. In the two years, 2018 and 2019, 2018 Sep had the most precipitation which was `r max(pull(comb_prcp_df, total))` inches.
+* The trash wheel dataset contains `r nrow(trash_wheel_df)` observations of `r ncol(trash_wheel_df)` variables. Some key variables include `r trash_wheel_df %>% select(-(dumpster:date)) %>% names()`. The data was collected from 5/16/14 to 1/4/21.
+* The combined precipitation dataset contains `r nrow(comb_prcp_df)` observations of `r ncol(comb_prcp_df)` variables: `r names(comb_prcp_df)`. The total precipitation in 2018 was `r sum(pull(prcp_2018_df, total))` inches; the total precipitation in 2019 was `r sum(pull(prcp_2019_df, total))` inches; the total precipitation in 2018 and 2019 was `r sum(pull(comb_prcp_df, total))` inches. In these two years, 2018 Sep had the most precipitation which was `r max(pull(comb_prcp_df, total))` inches.
 * The median number of sports balls in a dumpster in 2019 is `r trash_wheel_df %>% filter(year == 2019) %>% pull(sports_balls) %>% median()`.
 
 # Problem 2
 
 ## Clean pols_month dataset.
 
-```{r}
+```{r, message = FALSE}
 pols_month_df = 
   read_csv(file = "data/pols-month.csv") %>% 
   janitor::clean_names() %>% 
@@ -70,7 +69,7 @@ pols_month_df
 
 ## Clean snp dataset.
 
-```{r}
+```{r, message = FALSE}
 snp_df = 
   read_csv(file = "data/snp.csv") %>% 
   janitor::clean_names() %>% 
@@ -83,13 +82,13 @@ snp_df =
   mutate(
     year = as.character(year),
     month = as.character(month)
-  )
-snp_df
+  ) 
+snp_df 
 ```
 
 ## Clean unemployment dataset.
 
-```{r}
+```{r, message = FALSE}
 unemploy_df =
   read_csv(file = "data/unemployment.csv") %>%
   rename_with(~ month.name, month.abb) %>% 
@@ -98,7 +97,8 @@ unemploy_df =
     names_to = "month",
     values_to = "unemploy_percent") %>% 
   janitor::clean_names() %>% 
-  mutate(year = as.character(year))
+  mutate(year = as.character(year)) %>% 
+  arrange(unemploy_percent)
 unemploy_df
 ``` 
 
@@ -111,9 +111,9 @@ merging_df =
 merging_df
 ```
 
-* The `pols_month` dataset has `r nrow(pols_month_df)` rows and `r ncol(pols_month_df)` columns with variable names: `r names(pols_month_df)`. The year range is from `r min(pull(pols_month_df, year))` to `r max(pull(pols_month_df, year))`. 
-* The `snp` dataset has `r nrow(snp_df)` rows and `r ncol(snp_df)` columns with variable names: `r names(snp_df)`. It contains the closing values of the Standard & Poor’s stock index on the associated date `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`. 
-* The `unemployment` dataset has `r nrow(unemploy_df)` rows and `r ncol(unemploy_df)` columns with variable names: `r names(unemploy_df)`. The year range is from `r min(pull(unemploy_df, year))` to `r max(pull(unemploy_df, year))`.
+* The `pols_month` dataset has `r nrow(pols_month_df)` rows and `r ncol(pols_month_df)` columns with variable names: `r names(pols_month_df)`. The data on the number of national politicians at any given time was from `r max(pull(pols_month_df, year))`. In the `president` column, `dem` means the president at that given time was democratic, `gop` means the president at that time was republican.
+* The `snp` dataset has `r nrow(snp_df)` rows and `r ncol(snp_df)` columns with variable names: `r names(snp_df)`. It contains the closing values of the Standard & Poor’s stock index on the associated date from `r min(pull(snp_df, year))` to `r max(pull(snp_df, year))`. The largest closing value was `r max(pull(snp_df, close))` which was in May, 2015; the smallest closing value was `r min(pull(snp_df, close))` which was January, 1950.
+* The `unemployment` dataset has `r nrow(unemploy_df)` rows and `r ncol(unemploy_df)` columns with variable names: `r names(unemploy_df)`. The data on unemployment percentage was from `r min(pull(unemploy_df, year))` to `r max(pull(unemploy_df, year))`. The highest unemployment percentage was `r max(pull(unemploy_df, unemploy_percent), na.rm = TRUE)`, the lowest unemployment percentage was `r min(pull(unemploy_df, unemploy_percent), na.rm = TRUE)`. 
 * The resulting dataset has `r nrow(merging_df)` rows and `r ncol(merging_df)` columns with variable names: `r names(merging_df)`.
 
 
@@ -121,7 +121,7 @@ merging_df
 
 ## Load and tidy the popular baby name dataset.
 
-```{r}
+```{r, message = FALSE}
 babyname_df = 
   read_csv(file = "data/Popular_Baby_Names.csv") %>% 
   janitor::clean_names() %>% 
