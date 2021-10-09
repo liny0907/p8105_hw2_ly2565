@@ -170,7 +170,7 @@ babyname_df %>%
   labs(
     title = "Count vs Rank for Male White Non-hispanic Children Born in 2016",
     x = "Rank in Popularity",
-    y = "Number of Children")
+    y = "Number of Children") 
 
 ggsave("scatterplot_hw2.pdf", height = 4, width = 6)
 ```   
